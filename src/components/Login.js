@@ -4,13 +4,16 @@ import { checkValidData } from "../utils/validate";
 
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { signInWithEmailAndPassword, updateProfile } from "firebase/auth";
+
 import { auth } from "../utils/firebase";
-import { useNavigate } from "react-router";
+
 import { useDispatch } from "react-redux";
 import { addUser } from "../utils/userSlice";
+import {  USER_AVATAR } from "../utils/constants";
 const Login = () => {
-  const navigate = useNavigate();
+
   const dispatch = useDispatch();
+
   const [isSignInFrom, setIsSignInFrom] = useState(true);
   const [errorMessage, setErrorMessage] = useState(null);
 
@@ -20,29 +23,34 @@ const Login = () => {
 
   const handleButtonClick = () => {
     //Validate the form data
-    const message = checkValidData(email.current.value, password.current.value);
+    const message = checkValidData(
+      email.current.value,
+      password.current.value,
+      !isSignInFrom ? name.current.value : undefined
+    );
     setErrorMessage(message);
 
-    if (message) return;
+    if (message) return; //if there any message
 
     //SignUp SignIn logic
-    if (isSignInFrom) {
-      //Sign Up Logic
+    if (!isSignInFrom) {
+      //SignUp Logic
       createUserWithEmailAndPassword(
         auth,
         email.current.value,
         password.current.value
       )
         .then((userCredential) => {
-          // Signed up
+          // SignIn up
           const user = userCredential.user;
           updateProfile(user, {
             displayName: name.current.value,
-            photoURL: "https://avatars.githubusercontent.com/u/142436125?v=4",
+            photoURL: USER_AVATAR,
           })
             .then(() => {
-              const { uid, email, displayName, photoURL } = auth.currentUser;  //this come from the updated value of user
+              const { uid, email, displayName, photoURL } = auth.currentUser; //this come from the updated value of user
               dispatch(
+                //update store again
                 addUser({
                   uid: uid,
                   email: email,
@@ -50,13 +58,13 @@ const Login = () => {
                   photoURL: photoURL,
                 })
               );
-              navigate("/browse");
+            
             })
             .catch((error) => {
               setErrorMessage(error.message);
             });
           console.log(user);
-          navigate("/browse");
+     
         })
         .catch((error) => {
           const errorCode = error.code;
@@ -75,7 +83,7 @@ const Login = () => {
           // Signed in
           const user = userCredential.user;
           console.log(user);
-          navigate("/browse");
+         
         })
         .catch((error) => {
           const errorCode = error.code;
@@ -102,9 +110,9 @@ const Login = () => {
         className="w-4/12 rounded-lg absolute p-12 bg-black  my-36 mx-auto right-0 left-0 text-white bg-opacity-70"
       >
         <h1 className="font-bold text-3xl p-4">
-          {isSignInFrom ? "SignUp" : "SignIn"}
+          {isSignInFrom ? "SignIn" : "SignUp"}
         </h1>
-        {isSignInFrom && (
+        {!isSignInFrom && (
           <input
             ref={name}
             placeholder="Full Name"
@@ -129,11 +137,12 @@ const Login = () => {
           className=" p-4 my-2 bg-red-700 rounded-lg w-full"
           onClick={handleButtonClick}
         >
-          {isSignInFrom ? "Sign Up" : "Sign In"}
+          {isSignInFrom ? "SignIn" : "SignUp"}
         </button>
         <p className="py-4 hover:cursor-pointer " onClick={toggleSignInForm}>
-          {isSignInFrom ? "Already Registered?" : "New to Netflix?"}
-          {isSignInFrom ? "SignIn Now" : "SignUp Now"}
+          {isSignInFrom
+            ? "New to Netflix? SignUp Now"
+            : "Already Registered? SignIn Now"}
         </p>
       </form>
     </div>
