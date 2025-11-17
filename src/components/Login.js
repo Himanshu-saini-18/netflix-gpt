@@ -9,7 +9,7 @@ import { auth } from "../utils/firebase";
 
 import { useDispatch } from "react-redux";
 import { addUser } from "../utils/userSlice";
-import {  USER_AVATAR } from "../utils/constants";
+import {  BG_URL, USER_AVATAR } from "../utils/constants";
 const Login = () => {
 
   const dispatch = useDispatch();
@@ -101,7 +101,7 @@ const Login = () => {
       <Header />
       <div className="absolute">
         <img
-          src="https://assets.nflxext.com/ffe/siteui/vlv3/9c363af5-4750-4f14-87d1-8125f5276db0/web/IN-en-20251027-TRIFECTA-perspective_b68b1528-3a10-4997-9f99-48ccbdb86626_large.jpg"
+          src={BG_URL}
           alt="logo"
         />
       </div>
